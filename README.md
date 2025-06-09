@@ -20,48 +20,48 @@ package main
 
 import (
     "github.com/pedramktb/go-ctxslog"
-	"context"
-	"log/slog"
-	"os"
-	"time"
+    "context"
+    "log/slog"
+    "os"
+    "time"
 
     // other imports...
 )
 
 func main() {
-	ctx := ctxslog.NewContext(context.Background(), slog.NewTextHandler(os.Stdout, nil))
-
-	// ...
-
-	attrs := []slog.Attr{
-		slog.String("db", db.name),
-		slog.String("ip", db.ip),
-	}
-
-	ctx = ctxslog.WithAttrs(ctx, attrs...)
-
-	ctx = ctxslog.WithAttrs(ctx, func(ctx context.Context, r slog.Record) []slog.Attr {
-		if r.Level == slog.LevelDebug {
-			return []slog.Attr{
-				slog.String("time_took_to_compute_this_log_attr", time.Now().Sub(r.Time).String()),
-			}
-		} else {
-			return []slog.Attr{
-                slog.String(ctx.Value("stage").(string)),
-            }
-		}
-	})
+    ctx := ctxslog.NewContext(context.Background(), slog.NewTextHandler(os.Stdout, nil))
 
     // ...
 
-	logger := ctxslog.FromContext(ctx)
+    attrs := []slog.Attr{
+        slog.String("db", db.name),
+        slog.String("ip", db.ip),
+    }
+
+    ctx = ctxslog.WithAttrs(ctx, attrs...)
+
+    ctx = ctxslog.WithAttrs(ctx, func(ctx context.Context, r slog.Record) []slog.Attr {
+        if r.Level == slog.LevelDebug {
+            return []slog.Attr{
+                slog.String("time_took_to_compute_this_log_attr", time.Now().Sub(r.Time).String()),
+            }
+        } else {
+            return []slog.Attr{
+                slog.String(ctx.Value("stage").(string)),
+            }
+        }
+    })
+
+    // ...
+
+    logger := ctxslog.FromContext(ctx)
 
     // this will log something like: db=products ip=127.0.0.1 time_took_to_compute_this_log_attr=14ns
-	logger.DebugContext(ctx, "database started")
+    logger.DebugContext(ctx, "database started")
 
     // this will log something like: db=products ip=127.0.0.1 stage=dev
     logger.InfoContext(ctx, "database started")
 
-	// ...
+    // ...
 }
 ```
