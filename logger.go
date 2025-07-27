@@ -5,6 +5,7 @@ import (
 	"log/slog"
 )
 
+// New creates a new logger
 func New(handler slog.Handler) *slog.Logger {
 	return slog.New(newAttrHandler(handler))
 }
@@ -13,11 +14,23 @@ type loggerCtxKey struct{}
 
 type attrsCtxKey struct{}
 
+// NewContext is an alias for NewCtx
 func NewContext(ctx context.Context, handler slog.Handler) context.Context {
+	return NewCtx(ctx, handler)
+}
+
+// NewCtx creates a new logger and adds it to the provided context.
+func NewCtx(ctx context.Context, handler slog.Handler) context.Context {
 	return context.WithValue(ctx, loggerCtxKey{}, slog.New(newAttrHandler(handler)))
 }
 
+// FromContext is an alias for FromCtx
 func FromContext(ctx context.Context) *slog.Logger {
+	return FromCtx(ctx)
+}
+
+// FromCtx returns the logger from the provided context.
+func FromCtx(ctx context.Context) *slog.Logger {
 	logger, ok := ctx.Value(loggerCtxKey{}).(*slog.Logger)
 	if !ok {
 		return slog.Default()
@@ -25,6 +38,8 @@ func FromContext(ctx context.Context) *slog.Logger {
 	return logger
 }
 
+// WithAttrs adds attributes to the provided context.
+// Subsequent calls to the logger with this context (e.g. InfoContext()) will have the attributes added to them.
 func WithAttrs[T slog.Attr | func(context.Context, slog.Record) []slog.Attr](ctx context.Context, attrs ...T) context.Context {
 	attrsCtx, ok := ctx.Value(attrsCtxKey{}).([]any)
 	if !ok {
