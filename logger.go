@@ -5,7 +5,7 @@ import (
 	"log/slog"
 )
 
-// New creates a new logger
+// New creates and returns a new logger
 func New(handler slog.Handler) *slog.Logger {
 	return slog.New(newAttrHandler(handler))
 }
