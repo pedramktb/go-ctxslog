@@ -19,7 +19,7 @@ func NewContext(ctx context.Context, handler slog.Handler) context.Context {
 	return context.WithValue(ctx, loggerCtxKey{}, slog.New(newAttrHandler(handler)))
 }
 
-// FromContext returns the logger from the provided context.
+// FromContext returns the logger from the provided context, or the default logger (slog.Default()) if none is found.
 func FromContext(ctx context.Context) *slog.Logger {
 	logger, ok := ctx.Value(loggerCtxKey{}).(*slog.Logger)
 	if !ok {
