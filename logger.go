@@ -14,23 +14,13 @@ type loggerCtxKey struct{}
 
 type attrsCtxKey struct{}
 
-// NewContext is an alias for NewCtx
+// NewContext creates a new logger and adds it to the provided context.
 func NewContext(ctx context.Context, handler slog.Handler) context.Context {
-	return NewCtx(ctx, handler)
-}
-
-// NewCtx creates a new logger and adds it to the provided context.
-func NewCtx(ctx context.Context, handler slog.Handler) context.Context {
 	return context.WithValue(ctx, loggerCtxKey{}, slog.New(newAttrHandler(handler)))
 }
 
-// FromContext is an alias for FromCtx
+// FromContext returns the logger from the provided context.
 func FromContext(ctx context.Context) *slog.Logger {
-	return FromCtx(ctx)
-}
-
-// FromCtx returns the logger from the provided context.
-func FromCtx(ctx context.Context) *slog.Logger {
 	logger, ok := ctx.Value(loggerCtxKey{}).(*slog.Logger)
 	if !ok {
 		return slog.Default()
