@@ -31,14 +31,19 @@ func FromContext(ctx context.Context) *slog.Logger {
 // WithAttrs adds attributes to the provided context.
 // Subsequent calls to the logger with this context (e.g. InfoContext()) will have the attributes added to them.
 func WithAttrs[T slog.Attr | func(context.Context, slog.Record) []slog.Attr](ctx context.Context, attrs ...T) context.Context {
-	attrsCtx, ok := ctx.Value(attrsCtxKey{}).([]any)
+	if len(attrs) == 0 {
+		return ctx
+	}
+	old, ok := ctx.Value(attrsCtxKey{}).([]any)
 	if !ok {
-		attrsCtx = make([]any, 0)
+		old = make([]any, 0)
 	}
+	all := make([]any, len(old), len(old)+len(attrs))
+	copy(all, old)
 	for i := range attrs {
-		attrsCtx = append(attrsCtx, attrs[i])
+		all = append(all, attrs[i])
 	}
-	return context.WithValue(ctx, attrsCtxKey{}, attrsCtx)
+	return context.WithValue(ctx, attrsCtxKey{}, all)
 }
 
 func attrs(ctx context.Context, r slog.Record) []slog.Attr {
